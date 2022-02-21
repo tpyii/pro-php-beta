@@ -1,0 +1,17 @@
+{
+    "name": "tpyii/pro-php-beta",
+    "autoload": {
+        "psr-4": {
+            "App\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "Petr Komlev",
+            "email": "petr.komlev@gmail.com"
+        }
+    ],
+    "require": {
+        "fakerphp/faker": "^1.19"
+    }
+}
