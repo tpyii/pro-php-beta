@@ -6,9 +6,9 @@ class User implements UserInterface
 {
     public function __construct(
         private string $uuid,
-        private string $username,
-        private string $first_name,
-        private string $last_name
+        private string $userName,
+        private string $firstName,
+        private string $lastName
     ) {}
 
     /**
@@ -24,7 +24,7 @@ class User implements UserInterface
      */
     public function userName(): string
     {
-        return $this->username;
+        return $this->userName;
     }
 
     /**
@@ -32,7 +32,7 @@ class User implements UserInterface
      */
     public function firstName(): string
     {
-        return $this->first_name;
+        return $this->firstName;
     }
 
     /**
@@ -40,6 +40,6 @@ class User implements UserInterface
      */
     public function lastName(): string
     {
-        return $this->last_name;
+        return $this->lastName;
     }
 }

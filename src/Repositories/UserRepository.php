@@ -54,17 +54,17 @@ class UserRepository extends EntityRepository implements UserRepositoryInterface
      * @return \App\Entities\User
      * @throws \App\Exceptions\EntityNotFoundException
      */
-    public function getByUsername(string $username): User
+    public function getByUsername(string $userName): User
     {
         $statement = $this->connection->prepare(
             'SELECT * FROM users WHERE username = :username'
         );
 
         $statement->execute([
-            ':username' => $username,
+            ':username' => $userName,
         ]);
 
-        return $this->getUser($statement, $username);
+        return $this->getUser($statement, $userName);
     }
 
     /**

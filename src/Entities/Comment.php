@@ -6,8 +6,8 @@ class Comment implements CommentInterface
 {
     public function __construct(
         private string $uuid,
-        private string $post_uuid,
-        private string $author_uuid,
+        private string $postUuid,
+        private string $authorUuid,
         private string $text
     ) {}
 
@@ -24,7 +24,7 @@ class Comment implements CommentInterface
      */
     public function postUuid(): string
     {
-        return $this->post_uuid;
+        return $this->postUuid;
     }
 
     /**
@@ -32,7 +32,7 @@ class Comment implements CommentInterface
      */
     public function authorUuid(): string
     {
-        return $this->author_uuid;
+        return $this->authorUuid;
     }
 
     /**

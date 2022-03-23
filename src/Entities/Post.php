@@ -6,7 +6,7 @@ class Post implements PostInterface
 {
     public function __construct(
         private string $uuid,
-        private string $author_uuid,
+        private string $authorUuid,
         private string $title,
         private string $text
     ) {}
@@ -24,7 +24,7 @@ class Post implements PostInterface
      */
     public function authorUuid(): string
     {
-        return $this->author_uuid;
+        return $this->authorUuid;
     }
 
     /**
