@@ -1,0 +1,39 @@
+<?php
+
+namespace App\UnitTests;
+
+use PHPUnit\Framework\TestCase;
+use App\Connectors\SqliteConnector;
+use App\Repositories\CommentRepository;
+use App\Exceptions\EntityNotFoundException;
+
+final class CommentRepositoryTest extends TestCase
+{
+    public function testItFoundCommentFromRepositoryByUuid(): void
+    {
+        $uuid = 'c2c6b15a-5510-3712-a7e4-6f5a0910b567';   
+        
+        $this->repository = new CommentRepository(
+            SqliteConnector::getInstance()->getConnection()
+        );
+
+        $post = $this->repository->get($uuid);
+
+        $this->assertEquals($uuid, $post->uuid());
+    }
+
+    public function testItThrowsAnExceptionWhenCommentIsAbsent(): void
+    {
+        $uuid = '321';   
+        
+        $this->repository = new CommentRepository(
+            SqliteConnector::getInstance()->getConnection()
+        );
+
+        $this->expectException(EntityNotFoundException::class);
+
+        $this->expectExceptionMessage("Cannot find comment: {$uuid}");
+
+        $this->repository->get($uuid);
+    }
+}
