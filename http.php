@@ -6,6 +6,7 @@ use App\Http\HttpException;
 use App\Repositories\PostRepository;
 use App\Repositories\UserRepository;
 use App\Http\Actions\Users\FindByUsername;
+use App\Repositories\CommentRepository;
 
 require_once __DIR__ . '/vendor/autoload.php';
 
@@ -54,7 +55,27 @@ $routes = [
                 new PDO('sqlite:' . __DIR__ . '/blog.sqlite')
             )
         ),
+        // Добавили новый маршрут
+        '/posts/comment' => new CreateComment(
+            new CommentRepository(
+                new PDO('sqlite:' . __DIR__ . '/blog.sqlite')
+            ),
+            new PostRepository(
+                new PDO('sqlite:' . __DIR__ . '/blog.sqlite')
+            ),
+            new UserRepository(
+                new PDO('sqlite:' . __DIR__ . '/blog.sqlite')
+            )
+        ),
     ],
+    'DELETE' => [
+        // Добавили новый маршрут
+        '/posts' => new DeletePost(
+            new PostRepository(
+                new PDO('sqlite:' . __DIR__ . '/blog.sqlite')
+            )
+        ),
+    ]
 ];
 
 // Если у нас нет маршрутов для метода запроса -

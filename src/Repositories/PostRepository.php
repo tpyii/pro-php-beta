@@ -50,6 +50,21 @@ class PostRepository extends EntityRepository implements PostRepositoryInterface
     }
 
     /**
+     * @param string $uuid
+     * @return void
+     */
+    public function delete(string $uuid): void
+    {
+        $statement = $this->connection->prepare(
+            'DELETE FROM posts WHERE uuid = :uuid'
+        );
+
+        $statement->execute([
+            ':uuid' => $uuid,
+        ]);
+    }
+
+    /**
      * @param \PDOStatement $statement
      * @param string $field
      * @return \App\Entities\Post
