@@ -25,6 +25,7 @@ class RepositoryFactory implements RepositoryFactoryInterface
             User::class => new UserRepository($this->connection),
             Post::class => new PostRepository($this->connection),
             Comment::class => new CommentRepository($this->connection),
+            Like::class => new LikeRepository($this->connection),
             default => throw new MatchException("Cannot find repository factory for entity")
         };
     }

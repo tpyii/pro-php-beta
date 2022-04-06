@@ -3,6 +3,7 @@
 use App\Http\Request;
 use App\Http\ErrorResponse;
 use App\Http\HttpException;
+use App\Repositories\LikeRepository;
 use App\Repositories\PostRepository;
 use App\Repositories\UserRepository;
 use App\Http\Actions\Users\FindByUsername;
@@ -58,6 +59,18 @@ $routes = [
         // Добавили новый маршрут
         '/posts/comment' => new CreateComment(
             new CommentRepository(
+                new PDO('sqlite:' . __DIR__ . '/blog.sqlite')
+            ),
+            new PostRepository(
+                new PDO('sqlite:' . __DIR__ . '/blog.sqlite')
+            ),
+            new UserRepository(
+                new PDO('sqlite:' . __DIR__ . '/blog.sqlite')
+            )
+        ),
+        // Добавили новый маршрут
+        '/posts/like' => new CreateLike(
+            new LikeRepository(
                 new PDO('sqlite:' . __DIR__ . '/blog.sqlite')
             ),
             new PostRepository(

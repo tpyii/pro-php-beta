@@ -6,7 +6,7 @@ use App\Connectors\SqliteConnector;
 use App\Factories\EntityFactory;
 use App\Repositories\RepositoryFactory;
 
-$entity = EntityFactory::getInstance()->create('user');
+$entity = EntityFactory::getInstance()->create('like');
 
 $factory = new RepositoryFactory(
     SqliteConnector::getInstance()->getConnection()
