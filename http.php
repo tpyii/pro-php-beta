@@ -59,7 +59,8 @@ $routes = [
     'GET' => [
         '/users/show' => new FindByUsername(
             new UserRepository(
-                new PDO('sqlite:' . __DIR__ . '/blog.sqlite')
+                new PDO('sqlite:' . __DIR__ . '/blog.sqlite'),
+                $logger
             )
         ),
     ],
@@ -67,41 +68,50 @@ $routes = [
         '/users/create' => new CreateUser(
             new UserRepository(
                 new PDO('sqlite:' . __DIR__ . '/bloq.sqlite'),
+                $logger
             ),
             $logger
         ),
         // Добавили новый маршрут
         '/posts/create' => new CreatePost(
             new PostRepository(
-                new PDO('sqlite:' . __DIR__ . '/blog.sqlite')
+                new PDO('sqlite:' . __DIR__ . '/blog.sqlite'),
+                $logger
             ),
             new UserRepository(
-                new PDO('sqlite:' . __DIR__ . '/blog.sqlite')
+                new PDO('sqlite:' . __DIR__ . '/blog.sqlite'),
+                $logger
             ),
             $logger
         ),
         // Добавили новый маршрут
         '/posts/comment' => new CreateComment(
             new CommentRepository(
-                new PDO('sqlite:' . __DIR__ . '/blog.sqlite')
+                new PDO('sqlite:' . __DIR__ . '/blog.sqlite'),
+                $logger
             ),
             new PostRepository(
-                new PDO('sqlite:' . __DIR__ . '/blog.sqlite')
+                new PDO('sqlite:' . __DIR__ . '/blog.sqlite'),
+                $logger
             ),
             new UserRepository(
-                new PDO('sqlite:' . __DIR__ . '/blog.sqlite')
+                new PDO('sqlite:' . __DIR__ . '/blog.sqlite'),
+                $logger
             )
         ),
         // Добавили новый маршрут
         '/posts/like' => new CreateLike(
             new LikeRepository(
-                new PDO('sqlite:' . __DIR__ . '/blog.sqlite')
+                new PDO('sqlite:' . __DIR__ . '/blog.sqlite'),
+                $logger
             ),
             new PostRepository(
-                new PDO('sqlite:' . __DIR__ . '/blog.sqlite')
+                new PDO('sqlite:' . __DIR__ . '/blog.sqlite'),
+                $logger
             ),
             new UserRepository(
-                new PDO('sqlite:' . __DIR__ . '/blog.sqlite')
+                new PDO('sqlite:' . __DIR__ . '/blog.sqlite'),
+                $logger
             )
         ),
     ],
@@ -109,7 +119,8 @@ $routes = [
         // Добавили новый маршрут
         '/posts' => new DeletePost(
             new PostRepository(
-                new PDO('sqlite:' . __DIR__ . '/blog.sqlite')
+                new PDO('sqlite:' . __DIR__ . '/blog.sqlite'),
+                $logger
             )
         ),
     ]

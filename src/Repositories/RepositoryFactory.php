@@ -2,16 +2,18 @@
 
 namespace App\Repositories;
 
-use App\Entities\Comment;
-use App\Entities\User;
-use App\Entities\EntityInterface;
 use App\Entities\Post;
+use App\Entities\User;
+use App\Entities\Comment;
+use Psr\Log\LoggerInterface;
+use App\Entities\EntityInterface;
 use App\Exceptions\MatchException;
 
 class RepositoryFactory implements RepositoryFactoryInterface
 {
     public function __construct(
-        private \PDO $connection
+        private \PDO $connection,
+        private LoggerInterface $logger,
     ) {}
 
     /**
@@ -22,10 +24,10 @@ class RepositoryFactory implements RepositoryFactoryInterface
     public function create(EntityInterface $entity): EntityRepository
     {
         return match ($entity::class) {
-            User::class => new UserRepository($this->connection),
-            Post::class => new PostRepository($this->connection),
-            Comment::class => new CommentRepository($this->connection),
-            Like::class => new LikeRepository($this->connection),
+            User::class => new UserRepository($this->connection, $this->logger),
+            Post::class => new PostRepository($this->connection, $this->logger),
+            Comment::class => new CommentRepository($this->connection, $this->logger),
+            Like::class => new LikeRepository($this->connection, $this->logger),
             default => throw new MatchException("Cannot find repository factory for entity")
         };
     }

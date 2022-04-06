@@ -2,12 +2,14 @@
 
 namespace App\Repositories;
 
+use Psr\Log\LoggerInterface;
 use App\Entities\EntityInterface;
 
 abstract class EntityRepository implements EntityRepositoryInterface
 {
     public function __construct(
-        protected \PDO $connection
+        protected \PDO $connection,
+        private LoggerInterface $logger,
     ) {}
     
     /**

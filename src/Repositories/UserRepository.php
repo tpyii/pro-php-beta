@@ -4,7 +4,6 @@ namespace App\Repositories;
 
 use App\Entities\EntityInterface;
 use App\Entities\User;
-use App\Exceptions\EntityNotFoundException;
 
 class UserRepository extends EntityRepository implements UserRepositoryInterface
 {
@@ -29,12 +28,13 @@ class UserRepository extends EntityRepository implements UserRepositoryInterface
             ':first_name' => $entity->firstName(),
             ':last_name' => $entity->lastName(),
         ]);
+
+        $this->logger->info('User saved as ' . $entity->uuid());
     }
 
     /**
      * @param string $uuid
      * @return \App\Entities\User
-     * @throws \App\Exceptions\EntityNotFoundException
      */
     public function get(string $uuid): User
     {
@@ -52,7 +52,6 @@ class UserRepository extends EntityRepository implements UserRepositoryInterface
     /**
      * @param string $username
      * @return \App\Entities\User
-     * @throws \App\Exceptions\EntityNotFoundException
      */
     public function getByUsername(string $userName): User
     {
@@ -71,14 +70,14 @@ class UserRepository extends EntityRepository implements UserRepositoryInterface
      * @param \PDOStatement $statement
      * @param string $field
      * @return \App\Entities\User
-     * @throws \App\Exceptions\EntityNotFoundException
      */
     private function getUser(\PDOStatement $statement, string $field): User
     {
         $result = $statement->fetch(\PDO::FETCH_OBJ);
 
         if (false === $result) {
-            throw new EntityNotFoundException("Cannot find user: {$field}");
+            $this->logger->warning("Cannot find user: {$field}");
+            return;
         }
 
         return new User(

@@ -11,12 +11,21 @@ use App\Repositories\RepositoryFactory;
 $logger = (new Logger('blog'))
     ->pushHandler(new StreamHandler(
         __DIR__ . '/logs/blog.log'
+    ))
+    ->pushHandler(new StreamHandler(
+        __DIR__ . '/logs/blog.error.log',
+        level: Logger::ERROR,
+        bubble: false,
+    ))
+    ->pushHandler(new StreamHandler(
+        "php://stdout"
     ));
 
 $entity = EntityFactory::getInstance()->create('like');
 
 $factory = new RepositoryFactory(
-    SqliteConnector::getInstance()->getConnection()
+    SqliteConnector::getInstance()->getConnection(),
+    $logger,
 );
 
 $entityRepository = $factory->create($entity);
