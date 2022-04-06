@@ -2,9 +2,16 @@
 
 require_once 'vendor/autoload.php';
 
-use App\Connectors\SqliteConnector;
+use Monolog\Logger;
 use App\Factories\EntityFactory;
+use Monolog\Handler\StreamHandler;
+use App\Connectors\SqliteConnector;
 use App\Repositories\RepositoryFactory;
+
+$logger = (new Logger('blog'))
+    ->pushHandler(new StreamHandler(
+        __DIR__ . '/logs/blog.log'
+    ));
 
 $entity = EntityFactory::getInstance()->create('like');
 
@@ -18,5 +25,5 @@ try {
     $entityRepository->save($entity);
     print_r($entityRepository->get($entity->uuid()));
 } catch (\Exception $e) {
-    echo $e->getMessage();
+    $logger->error($e->getMessage(), ['exception' => $e]);
 }

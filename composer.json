@@ -17,5 +17,8 @@
     },
     "scripts": {
         "test": "phpunit tests --testdox --colors"
+    },
+    "require": {
+        "monolog/monolog": "^2.4"
     }
 }

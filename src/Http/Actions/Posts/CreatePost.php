@@ -1,17 +1,18 @@
 <?php
 
+use Faker\Generator;
 use App\Http\Request;
 use App\Entities\Post;
 use App\Http\Response;
 use App\Http\ErrorResponse;
 use App\Http\HttpException;
+use Faker\Factory as Faker;
+use Psr\Log\LoggerInterface;
 use App\Http\SuccessfulResponse;
 use App\Http\Actions\ActionInterface;
 use App\Exceptions\UserNotFoundException;
 use App\Repositories\PostRepositoryInterface;
 use App\Repositories\UserRepositoryInterface;
-use Faker\Factory as Faker;
-use Faker\Generator;
 
 class CreatePost implements ActionInterface
 {
@@ -21,12 +22,15 @@ class CreatePost implements ActionInterface
     public function __construct(
         private PostRepositoryInterface $postsRepository,
         private UserRepositoryInterface $usersRepository,
+        private LoggerInterface $logger,
     ) {
         $this->faker = Faker::create();
     }
 
     public function handle(Request $request): Response
     {
+        $this->logger->info("Create post command started");
+
         // Пытаемся создать UUID пользователя из данных запроса
         try {
             $authorUuid = $request->jsonBodyField('author_uuid');
@@ -38,7 +42,8 @@ class CreatePost implements ActionInterface
         try {
             $this->usersRepository->get($authorUuid);
         } catch (UserNotFoundException $e) {
-            return new ErrorResponse($e->getMessage());
+            $this->logger->warning("User not found by id: $authorUuid");
+            return;
         }
 
         // Генерируем UUID для новой статьи
@@ -59,6 +64,8 @@ class CreatePost implements ActionInterface
 
         // Сохраняем новую статью в репозитории
         $this->postsRepository->save($post);
+
+        $this->logger->info("Post created: $newPostUuid");
 
         // Возвращаем успешный ответ,
         // содержащий UUID новой статьи
