@@ -4,7 +4,6 @@ namespace App\Repositories;
 
 use App\Entities\EntityInterface;
 use App\Entities\Comment;
-use App\Exceptions\EntityNotFoundException;
 
 class CommentRepository extends EntityRepository implements CommentRepositoryInterface
 {
@@ -29,12 +28,13 @@ class CommentRepository extends EntityRepository implements CommentRepositoryInt
             ':author_uuid' => $entity->authorUuid(),
             ':text' => $entity->text(),
         ]);
+        
+        $this->logger->info('Comment saved as ' . $entity->uuid());
     }
 
     /**
      * @param string $uuid
      * @return \App\Entities\Comment
-     * @throws \App\Exceptions\EntityNotFoundException
      */
     public function get(string $uuid): Comment
     {
@@ -53,14 +53,14 @@ class CommentRepository extends EntityRepository implements CommentRepositoryInt
      * @param \PDOStatement $statement
      * @param string $field
      * @return \App\Entities\Comment
-     * @throws \App\Exceptions\EntityNotFoundException
      */
     private function getComment(\PDOStatement $statement, string $field): Comment
     {
         $result = $statement->fetch(\PDO::FETCH_OBJ);
 
         if (false === $result) {
-            throw new EntityNotFoundException("Cannot find comment: {$field}");
+            $this->logger->warning("Cannot find comment: {$field}");
+            return;
         }
 
         return new Comment(

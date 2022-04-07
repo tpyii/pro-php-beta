@@ -4,7 +4,6 @@ namespace App\Repositories;
 
 use App\Entities\EntityInterface;
 use App\Entities\Post;
-use App\Exceptions\EntityNotFoundException;
 
 class PostRepository extends EntityRepository implements PostRepositoryInterface
 {
@@ -29,12 +28,13 @@ class PostRepository extends EntityRepository implements PostRepositoryInterface
             ':title' => $entity->title(),
             ':text' => $entity->text(),
         ]);
+
+        $this->logger->info('Post saved as ' . $entity->uuid());
     }
 
     /**
      * @param string $uuid
      * @return \App\Entities\Post
-     * @throws \App\Exceptions\EntityNotFoundException
      */
     public function get(string $uuid): Post
     {
@@ -68,14 +68,14 @@ class PostRepository extends EntityRepository implements PostRepositoryInterface
      * @param \PDOStatement $statement
      * @param string $field
      * @return \App\Entities\Post
-     * @throws \App\Exceptions\EntityNotFoundException
      */
     private function getPost(\PDOStatement $statement, string $field): Post
     {
         $result = $statement->fetch(\PDO::FETCH_OBJ);
 
         if (false === $result) {
-            throw new EntityNotFoundException("Cannot find post by author: {$field}");
+            $this->logger->warning("Cannot find post by author: {$field}");
+            return;
         }
 
         return new Post(

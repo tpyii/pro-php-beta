@@ -4,7 +4,6 @@ namespace App\Repositories;
 
 use App\Entities\EntityInterface;
 use App\Entities\Like;
-use App\Exceptions\EntityNotFoundException;
 
 class LikeRepository extends EntityRepository implements LikeRepositoryInterface
 {
@@ -28,12 +27,13 @@ class LikeRepository extends EntityRepository implements LikeRepositoryInterface
             ':post_uuid' => $entity->postUuid(),
             ':author_uuid' => $entity->authorUuid(),
         ]);
+
+        $this->logger->info('Like saved as ' . $entity->uuid());
     }
 
     /**
      * @param string $uuid
      * @return \App\Entities\Like
-     * @throws \App\Exceptions\EntityNotFoundException
      */
     public function get(string $uuid): Like
     {
@@ -51,7 +51,6 @@ class LikeRepository extends EntityRepository implements LikeRepositoryInterface
     /**
      * @param string $username
      * @return array
-     * @throws \App\Exceptions\EntityNotFoundException
      */
     public function getByPostUuid(string $postUuid): array
     {
@@ -70,14 +69,14 @@ class LikeRepository extends EntityRepository implements LikeRepositoryInterface
      * @param \PDOStatement $statement
      * @param string $field
      * @return \App\Entities\Like
-     * @throws \App\Exceptions\EntityNotFoundException
      */
     private function getLike(\PDOStatement $statement, string $field): Like
     {
         $result = $statement->fetch(\PDO::FETCH_OBJ);
 
         if (false === $result) {
-            throw new EntityNotFoundException("Cannot find likes by post: {$field}");
+            $this->logger->warning("Cannot find likes by post: {$field}");
+            return;
         }
 
         return new Like(
@@ -91,7 +90,6 @@ class LikeRepository extends EntityRepository implements LikeRepositoryInterface
      * @param \PDOStatement $statement
      * @param string $field
      * @return array
-     * @throws \App\Exceptions\EntityNotFoundException
      */
     private function getLikes(\PDOStatement $statement, string $field): array
     {
@@ -104,7 +102,8 @@ class LikeRepository extends EntityRepository implements LikeRepositoryInterface
         }
 
         if (false === $result) {
-            throw new EntityNotFoundException("Cannot find like: {$field}");
+            $this->logger->warning("Cannot find like: {$field}");
+            return;
         }
 
         return $result;
