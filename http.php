@@ -5,6 +5,7 @@ use App\Http\Request;
 use App\Http\ErrorResponse;
 use App\Http\HttpException;
 use App\Http\Actions\Auth\LogIn;
+use App\Http\Actions\Auth\LogOut;
 use Monolog\Handler\StreamHandler;
 use App\Repositories\LikeRepository;
 use App\Repositories\PostRepository;
