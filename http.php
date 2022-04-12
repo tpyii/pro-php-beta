@@ -74,7 +74,7 @@ $routes = [
             ),
             new AuthTokensRepository($connector)
         ),
-        '/logout' => new logOut(
+        '/logout' => new LogOut(
             new BearerTokenAuthentication(
                 new AuthTokensRepository($connector),
                 new UserRepository($connector, $logger)
