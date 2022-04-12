@@ -4,14 +4,20 @@ use Monolog\Logger;
 use App\Http\Request;
 use App\Http\ErrorResponse;
 use App\Http\HttpException;
+use App\Http\Actions\Auth\LogIn;
 use Monolog\Handler\StreamHandler;
 use App\Repositories\LikeRepository;
 use App\Repositories\PostRepository;
 use App\Repositories\UserRepository;
 use App\Repositories\CommentRepository;
+use App\Http\Auth\PasswordAuthentication;
 use App\Http\Actions\Users\FindByUsername;
+use App\Repositories\AuthTokensRepository;
+use App\Http\Auth\BearerTokenAuthentication;
 
 require_once __DIR__ . '/vendor/autoload.php';
+
+$connector = new PDO('sqlite:' . __DIR__ . '/blog.sqlite');
 
 $logger = (new Logger('blog'))
     ->pushHandler(new StreamHandler(
@@ -58,70 +64,57 @@ $routes = [
     // применяемых к запросам с разными методами
     'GET' => [
         '/users/show' => new FindByUsername(
-            new UserRepository(
-                new PDO('sqlite:' . __DIR__ . '/blog.sqlite'),
-                $logger
-            )
+            new UserRepository($connector, $logger)
         ),
     ],
     'POST' => [
-        '/users/create' => new CreateUser(
-            new UserRepository(
-                new PDO('sqlite:' . __DIR__ . '/bloq.sqlite'),
-                $logger
+        '/login' => new LogIn(
+            new PasswordAuthentication(
+                new UserRepository($connector, $logger)
             ),
+            new AuthTokensRepository($connector)
+        ),
+        '/logout' => new logOut(
+            new BearerTokenAuthentication(
+                new AuthTokensRepository($connector),
+                new UserRepository($connector, $logger)
+            ),
+            new AuthTokensRepository($connector)
+        ),
+        '/users/create' => new CreateUser(
+            new UserRepository($connector, $logger),
             $logger
         ),
         // Добавили новый маршрут
         '/posts/create' => new CreatePost(
-            new PostRepository(
-                new PDO('sqlite:' . __DIR__ . '/blog.sqlite'),
-                $logger
-            ),
-            new UserRepository(
-                new PDO('sqlite:' . __DIR__ . '/blog.sqlite'),
-                $logger
+            new PostRepository($connector, $logger),
+            new BearerTokenAuthentication(
+                new AuthTokensRepository($connector),
+                new UserRepository($connector, $logger)
             ),
             $logger
         ),
         // Добавили новый маршрут
         '/posts/comment' => new CreateComment(
-            new CommentRepository(
-                new PDO('sqlite:' . __DIR__ . '/blog.sqlite'),
-                $logger
-            ),
-            new PostRepository(
-                new PDO('sqlite:' . __DIR__ . '/blog.sqlite'),
-                $logger
-            ),
-            new UserRepository(
-                new PDO('sqlite:' . __DIR__ . '/blog.sqlite'),
-                $logger
-            )
+            new CommentRepository($connector, $logger),
+            new PostRepository($connector, $logger),
+            new UserRepository($connector, $logger)
         ),
         // Добавили новый маршрут
         '/posts/like' => new CreateLike(
-            new LikeRepository(
-                new PDO('sqlite:' . __DIR__ . '/blog.sqlite'),
-                $logger
-            ),
-            new PostRepository(
-                new PDO('sqlite:' . __DIR__ . '/blog.sqlite'),
-                $logger
-            ),
-            new UserRepository(
-                new PDO('sqlite:' . __DIR__ . '/blog.sqlite'),
-                $logger
+            new LikeRepository($connector, $logger),
+            new PostRepository($connector, $logger),
+            new UserRepository($connector, $logger),
+            new BearerTokenAuthentication(
+                new AuthTokensRepository($connector),
+                new UserRepository($connector, $logger)
             )
         ),
     ],
     'DELETE' => [
         // Добавили новый маршрут
         '/posts' => new DeletePost(
-            new PostRepository(
-                new PDO('sqlite:' . __DIR__ . '/blog.sqlite'),
-                $logger
-            )
+            new PostRepository($connector, $logger)
         ),
     ]
 ];

@@ -1,19 +1,21 @@
 <?php
 
+use Faker\Generator;
 use App\Http\Request;
-use App\Http\Response;
 use App\Entities\Like;
+use App\Http\Response;
 use App\Http\ErrorResponse;
 use App\Http\HttpException;
+use Faker\Factory as Faker;
+use App\Http\Auth\AuthException;
 use App\Http\SuccessfulResponse;
 use App\Http\Actions\ActionInterface;
 use App\Exceptions\PostNotFoundException;
 use App\Exceptions\UserNotFoundException;
+use App\Repositories\LikeRepositoryInterface;
 use App\Repositories\PostRepositoryInterface;
 use App\Repositories\UserRepositoryInterface;
-use App\Repositories\LikeRepositoryInterface;
-use Faker\Factory as Faker;
-use Faker\Generator;
+use App\Http\Auth\TokenAuthenticationInterface;
 
 class CreateLike implements ActionInterface
 {
@@ -23,6 +25,7 @@ class CreateLike implements ActionInterface
         private LikeRepositoryInterface $likeRepository,
         private PostRepositoryInterface $postsRepository,
         private UserRepositoryInterface $usersRepository,
+        private TokenAuthenticationInterface $authentication,
     ) {
         $this->faker = Faker::create();
     }
@@ -30,14 +33,8 @@ class CreateLike implements ActionInterface
     public function handle(Request $request): Response
     {
         try {
-            $authorUuid = $request->jsonBodyField('autor_uuid');
-        } catch (HttpException | InvalidArgumentException $e) {
-            return new ErrorResponse($e->getMessage());
-        }
-
-        try {
-            $this->usersRepository->get($authorUuid);
-        } catch (UserNotFoundException $e) {
+            $author = $this->authentication->user($request);
+        } catch (AuthException $e) {
             return new ErrorResponse($e->getMessage());
         }
 
@@ -58,7 +55,7 @@ class CreateLike implements ActionInterface
         try {
             $post = new Like(
                 $newLikeUuid,
-                $authorUuid,
+                $author->uuid(),
                 $postUuid
             );
         } catch (HttpException $e) {
