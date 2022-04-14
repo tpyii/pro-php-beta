@@ -19,7 +19,10 @@ class UserRepository extends EntityRepository implements UserRepositoryInterface
         
         $statement = $this->connection->prepare(
             'INSERT INTO users (uuid, username, first_name, last_name, password)
-            VALUES (:uuid, :username, :first_name, :last_name, :password)'
+            VALUES (:uuid, :username, :first_name, :last_name, :password)
+            ON CONFLICT (uuid) DO UPDATE SET
+               first_name = :first_name,
+               last_name = :last_name'
         );
 
         $statement->execute([
@@ -78,7 +81,7 @@ class UserRepository extends EntityRepository implements UserRepositoryInterface
 
         if (false === $result) {
             $this->logger->warning("Cannot find user: {$field}");
-            return;
+            return false;
         }
 
         return new User(
