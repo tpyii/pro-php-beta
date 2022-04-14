@@ -8,11 +8,11 @@ use App\Http\ErrorResponse;
 use App\Http\HttpException;
 use Faker\Factory as Faker;
 use Psr\Log\LoggerInterface;
+use App\Http\Auth\AuthException;
 use App\Http\SuccessfulResponse;
 use App\Http\Actions\ActionInterface;
-use App\Exceptions\UserNotFoundException;
 use App\Repositories\PostRepositoryInterface;
-use App\Repositories\UserRepositoryInterface;
+use App\Http\Auth\TokenAuthenticationInterface;
 
 class CreatePost implements ActionInterface
 {
@@ -21,7 +21,7 @@ class CreatePost implements ActionInterface
     // Внедряем репозитории статей и пользователей
     public function __construct(
         private PostRepositoryInterface $postsRepository,
-        private UserRepositoryInterface $usersRepository,
+        private TokenAuthenticationInterface $authentication,
         private LoggerInterface $logger,
     ) {
         $this->faker = Faker::create();
@@ -31,19 +31,10 @@ class CreatePost implements ActionInterface
     {
         $this->logger->info("Create post command started");
 
-        // Пытаемся создать UUID пользователя из данных запроса
         try {
-            $authorUuid = $request->jsonBodyField('author_uuid');
-        } catch (HttpException | InvalidArgumentException $e) {
+            $author = $this->authentication->user($request);
+        } catch (AuthException $e) {
             return new ErrorResponse($e->getMessage());
-        }
-
-        // Пытаемся найти пользователя в репозитории
-        try {
-            $this->usersRepository->get($authorUuid);
-        } catch (UserNotFoundException $e) {
-            $this->logger->warning("User not found by id: $authorUuid");
-            return;
         }
 
         // Генерируем UUID для новой статьи
@@ -54,7 +45,7 @@ class CreatePost implements ActionInterface
             // из данных запроса
             $post = new Post(
                 $newPostUuid,
-                $authorUuid,
+                $author->uuid(),
                 $request->jsonBodyField('title'),
                 $request->jsonBodyField('text'),
             );

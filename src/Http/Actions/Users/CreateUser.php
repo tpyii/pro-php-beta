@@ -41,11 +41,12 @@ class CreateUser implements ActionInterface
         $uuid = $this->faker->uuid();
 
         try {
-            $user = new User(
+            $user = User::createFrom(
                 $uuid,
                 $userName,
                 $request->jsonBodyField('first_name'),
                 $request->jsonBodyField('last_name'),
+                $request->jsonBodyField('password'),
             );
         } catch (HttpException $e) {
             return new ErrorResponse($e->getMessage());

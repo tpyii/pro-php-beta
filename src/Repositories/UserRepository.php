@@ -18,8 +18,8 @@ class UserRepository extends EntityRepository implements UserRepositoryInterface
          */
         
         $statement = $this->connection->prepare(
-            'INSERT INTO users (uuid, username, first_name, last_name)
-            VALUES (:uuid, :username, :first_name, :last_name)'
+            'INSERT INTO users (uuid, username, first_name, last_name, password)
+            VALUES (:uuid, :username, :first_name, :last_name, :password)'
         );
 
         $statement->execute([
@@ -27,6 +27,7 @@ class UserRepository extends EntityRepository implements UserRepositoryInterface
             ':username' => $entity->userName(),
             ':first_name' => $entity->firstName(),
             ':last_name' => $entity->lastName(),
+            ':password' => $entity->hashedPassword(),
         ]);
 
         $this->logger->info('User saved as ' . $entity->uuid());
@@ -84,7 +85,8 @@ class UserRepository extends EntityRepository implements UserRepositoryInterface
             $result->uuid,
             $result->username,
             $result->first_name, 
-            $result->last_name
+            $result->last_name,
+            $result->password,
         );
     }
 }
