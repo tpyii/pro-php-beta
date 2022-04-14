@@ -2,13 +2,16 @@
 
 namespace App\Commands;
 
+use App\Entities\Comment;
 use Faker\Generator;
 use App\Entities\Post;
 use App\Entities\User;
+use App\Repositories\CommentRepositoryInterface;
 use Faker\Factory as Faker;
 use App\Repositories\PostRepositoryInterface;
 use App\Repositories\UserRepositoryInterface;
 use Symfony\Component\Console\Command\Command;
+use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
@@ -21,6 +24,7 @@ class PopulateDB extends Command
     public function __construct(
         private UserRepositoryInterface $usersRepository,
         private PostRepositoryInterface $postsRepository,
+        private CommentRepositoryInterface $commentsRepository,
     ) {
         parent::__construct();
 
@@ -31,7 +35,9 @@ class PopulateDB extends Command
     {
         $this
             ->setName('fake-data:populate-db')
-            ->setDescription('Populates DB with fake data');
+            ->setDescription('Populates DB with fake data')
+            ->addOption('users-number', 'u', InputOption::VALUE_OPTIONAL, 'Count users')
+            ->addOption('article-number', 'a', InputOption::VALUE_OPTIONAL, 'Count articles');
     }
 
     protected function execute(
@@ -39,9 +45,13 @@ class PopulateDB extends Command
         OutputInterface $output,
     ): int 
     {
+        // Получаем значения опций
+        (int)$usersCount = $input->getOption('users-number');
+        (int)$postsCount = $input->getOption('article-number');
+
         // Создаём десять пользователей
         $users = [];
-        for ($i = 0; $i < 10; $i++) {
+        for ($i = 0; $i < $usersCount ?? 10; $i++) {
             $user = $this->createFakeUser();
             $users[] = $user;
             $output->writeln('User created: ' . $user->username());
@@ -49,10 +59,17 @@ class PopulateDB extends Command
 
         // От имени каждого пользователя
         // создаём по двадцать статей
+        $posts = [];
         foreach ($users as $user) {
-            for ($i = 0; $i < 20; $i++) {
+            for ($i = 0; $i < $postsCount ?? 20; $i++) {
                 $post = $this->createFakePost($user);
+                $posts[] = $post;
                 $output->writeln('Post created: ' . $post->title());
+            }
+
+            for ($i = 0; $i < count($posts) ?? 20; $i++) {
+                $comment = $this->createFakeComment($post, $user);
+                $output->writeln('Comment created: ' . $comment->text());
             }
         }
 
@@ -94,5 +111,19 @@ class PopulateDB extends Command
         $this->postsRepository->save($post);
 
         return $post;
+    }
+
+    private function createFakeComment(Post $post, User $author): Comment
+    {
+        $comment = new Comment(
+            $this->faker->uuid(),
+            $post->uuid(),
+            $author->uuid(),
+            $this->faker->text()
+        );
+
+        $this->commentsRepository->save($comment);
+
+        return $comment;
     }
 }
