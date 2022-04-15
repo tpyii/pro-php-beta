@@ -55,13 +55,17 @@ class PostRepository extends EntityRepository implements PostRepositoryInterface
      */
     public function delete(string $uuid): void
     {
-        $statement = $this->connection->prepare(
-            'DELETE FROM posts WHERE uuid = :uuid'
-        );
+        try {
+            $statement = $this->connection->prepare(
+                'DELETE FROM posts WHERE uuid = :uuid'
+            );
 
-        $statement->execute([
-            ':uuid' => $uuid,
-        ]);
+            $statement->execute([
+                ':uuid' => $uuid,
+            ]);
+        } catch (\PDOException $e) {
+            throw new \Exception($e->getMessage(), (int)$e->getCode());
+        }
     }
 
     /**

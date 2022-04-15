@@ -24,4 +24,11 @@ abstract class EntityRepository implements EntityRepositoryInterface
      * @throws \App\Exceptions\EntityNotFoundException
      */
     abstract public function get(string $uuid): EntityInterface;
+
+    /**
+     * @param string $uuid
+     * @return void
+     * @throws \App\Exceptions\EntityNotFoundException
+     */
+    abstract public function delete(string $uuid): void;
 }

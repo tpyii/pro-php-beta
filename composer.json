@@ -19,6 +19,7 @@
         "test": "phpunit tests --testdox --colors"
     },
     "require": {
-        "monolog/monolog": "^2.4"
+        "monolog/monolog": "^2.4",
+        "symfony/console": "^6.0"
     }
 }

@@ -18,7 +18,7 @@ use App\Http\Auth\BearerTokenAuthentication;
 
 require_once __DIR__ . '/vendor/autoload.php';
 
-$connector = new PDO('sqlite:' . __DIR__ . '/blog.sqlite');
+$connector = new PDO('sqlite:' . __DIR__ . '/database.sqlite');
 
 $logger = (new Logger('blog'))
     ->pushHandler(new StreamHandler(
